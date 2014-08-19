@@ -1,0 +1,23 @@
+local factory = require('query')
+local query = factory.new()
+local l = ""
+
+describe("Checks param substitution and escaped strings", function()
+  it("tests string substitution", function()
+    l = query:sql("SELECT * FROM dogs WHERE breed = :breed LIMIT :limit", {limit="10", breed='poodle'})
+    assert.are.equal('SELECT * FROM dogs WHERE breed = "poodle" LIMIT 10', l)
+  end)
+  it("tests string escape with double quotes", function() 
+    l = query:sql("SELECT * FROM dogs WHERE breed = :breed LIMIT :limit", {limit="10", breed='"poodle"'})
+    assert.are.equal('SELECT * FROM dogs WHERE breed = "\\"poodle\\"" LIMIT 10', l)      
+  end)
+  it("tests string escape with single quotes", function() 
+    l = query:sql("SELECT * FROM dogs WHERE breed = :breed LIMIT :limit", {limit="10", breed="'poodle'"})
+    assert.are.equal("SELECT * FROM dogs WHERE breed = \"\\'poodle\\'\" LIMIT 10", l)      
+  end)
+  it("tests string escape with single quote", function() 
+    l = query:sql("SELECT * FROM dogs WHERE breed = :breed LIMIT :limit", {limit="10", breed='x" AND 1=(SELECT COUNT(*) FROM tabname); --'})
+    assert.are.equal('SELECT * FROM dogs WHERE breed = "x\\" AND 1=(SELECT COUNT(*) FROM tabname); --" LIMIT 10', l)      
+  end)
+
+end)
